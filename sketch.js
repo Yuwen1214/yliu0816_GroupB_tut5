@@ -1,4 +1,4 @@
-// [My Change 2nd Iteration] The initial static umbrella pattern layout switches to interactive mode. Now, the screen starts out blank, and clicking anywhere will generate a new umbrella and ripple effect.
+//  [My Change third iteration] Added a button to generate ink drops
 let circles = [];      // [Group code] an array to store all circle objects
 let rippleCircles = []; // Store ripple effect objects triggered by user clicks
 
@@ -6,7 +6,7 @@ function setup() {
   // [Group Code] Create the canvas using the size of the window
   createCanvas(windowWidth, windowHeight);
   angleMode(RADIANS); // [Group Code] Use radians for angle measurements
-  background('#f4f1e3');   // [My Change 2nd Iteration] Set the background to a light beige
+  background('#f4f1e3');   // Set the background to a light beige
 }
 
 function draw() {
@@ -24,18 +24,25 @@ function draw() {
   }
 }
 
-// [My Change 2nd Iteration] Changed to always create a new umbrella and ripple at the click position.
 function mousePressed() {
   let radius = 200;
   let x = mouseX;
   let y = mouseY;
-
-  // [My Change 2nd Iteration] Add a pattern circle and ripple circle at the click position
   circles.push(new PatternCircle(x, y, radius));
   rippleCircles.push(new RippleCircle(x, y));
 }
 
-// Ripple animation class
+// [My Change 3rd Iteration] Trigger ink drops on latest ripple circle
+// Press "1" to add ink drops to the most recent ripple circle
+function keyPressed() {
+  if (key === '1') {
+    if (rippleCircles.length > 0) {
+      rippleCircles[rippleCircles.length - 1].addInkDrop();
+    }
+  }
+}
+
+// [My Change 3rd Iteration] Ripple circle class with ink drops
 class RippleCircle {
   constructor(x, y) {
   // Set initial position (center of the ripple)
@@ -44,6 +51,7 @@ class RippleCircle {
     this.radius = 0;       // Initial radius 
     this.maxRadius = 130;  // Maximum radius the ripple can reach
     this.alpha = 40;       // Transparency of the ripple circle
+    this.inkDrops = [];    // [My Change 3rd Iteration] Add ink drop effects
   }
 
   // Gradually increase the radius of the ripple
@@ -54,12 +62,32 @@ class RippleCircle {
     }
   }
 
-  // [My Change 2nd Iteration]] Display the expanding ripple circle
+  // Display the expanding ripple circle
   draw() {
     fill(5, 7, 5, this.alpha); // origanal is fill(30, 30, 30, this.alpha)
     noStroke();
     ellipse(this.x, this.y, this.radius * 2);
+
+    // [My Change 3rd Iteration] Draw ink drops
+    for (let drop of this.inkDrops) {
+      fill(10, 10, 10, drop.alpha);
+      noStroke();
+      ellipse(this.x + drop.offsetX, this.y + drop.offsetY, drop.r * 2);
+    }
   }
+  
+  addInkDrop() {
+    for (let i = 0; i < 6; i++) {
+      this.inkDrops.push({
+        // Random horizontal and vertical offset to create scattered ink drop effect
+        offsetX: random(-this.radius / 2, this.radius / 2),
+        offsetY: random(-this.radius / 2, this.radius / 2),
+        r: random(6, 12),  // Random radius to vary the size of each ink drop
+        alpha: 80
+      });
+    }
+  }
+
 }
 
 // [Group code] This class creates each circle design
@@ -81,7 +109,7 @@ class PatternCircle {
     this.lineColor = color(random(200, 255), random(200, 255), random(0, 100));
     this.outerDotColor = color(random(0, 255), random(0, 80), random(0, 255), 120);
 
-  // [My Change] Adjusted the maximum radius for outer red dot rings
+  // Adjusted the maximum radius for outer red dot rings
     this.dotSizes = [];
     let maxRadius = this.r * 0.2;  // originally r * 0.6
     for (let r = 9; r < maxRadius; r += 10) {
@@ -137,14 +165,14 @@ class PatternCircle {
     circle(0, 0, this.r * 0.23);
 
     fill(100, 130, 100); 
-    circle(0, 0, this.r * 0.02); //[My Change] originally r * 0.2
+    circle(0, 0, this.r * 0.02); // originally r * 0.2
 
     noFill();
     stroke(80, 255, 120, 60);
     strokeWeight(2.5);
 
     fill(180, 50, 80); 
-    circle(0, 0, this.r * 0.1); // [My Change] originally r * 0.15
+    circle(0, 0, this.r * 0.1); // originally r * 0.15
 
     fill(30, 180, 60);
     circle(0, 0, this.r * 0.07);
@@ -159,7 +187,7 @@ class PatternCircle {
     arc(0, 0, 24, 23, PI * 1.05, PI * 1.85);
     arc(0, 0, 20, 25, PI * 0.45, PI * 0.75);
 
-    // [My Change] Inspired by traditional Chinese oil-paper umbrella rib patterns
+    // Inspired by traditional Chinese oil-paper umbrella rib patterns
     let stamenCount = 17; // Number of ribs to draw
     let rotateAngle = frameCount * 0.02;
     push();
@@ -173,7 +201,7 @@ class PatternCircle {
       push();
       rotate(angle);
 
-      // [My Change] Bezier curve shaped like an umbrella rib
+      // Bezier curve shaped like an umbrella rib
       bezier(0, 0, this.r * 0.09, -this.r * 0.1, this.r * 0.2, this.r * 0.05, this.r * 0.6, this.r * 0.2);
       pop(); // End rotation for current rib
     }
@@ -183,7 +211,7 @@ class PatternCircle {
 
   // [Group code] Draw red dots in rings around the center
   drawOuterDots(x, y, r) {
-    let maxRadius = r * 0.2; // [My Change 2nd Iteration] originally r * 0.23
+    let maxRadius = r * 0.2; // originally r * 0.23
     let ringIndex = 0;
     for (let i = 10; i < maxRadius; i += 12) {
       let numDots = floor(TWO_PI * i / 10); // how many dots on this ring
