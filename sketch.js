@@ -1,35 +1,18 @@
-let circles = [];      // an array to store all circle objects
-let rippleCircles = []; // [My Change] Store ripple effect objects triggered by user clicks
+// [My Change 2nd Iteration] The initial static umbrella pattern layout switches to interactive mode. Now, the screen starts out blank, and clicking anywhere will generate a new umbrella and ripple effect.
+let circles = [];      // [Group code] an array to store all circle objects
+let rippleCircles = []; // Store ripple effect objects triggered by user clicks
 
 function setup() {
-  // Create the canvas using the size of the window
+  // [Group Code] Create the canvas using the size of the window
   createCanvas(windowWidth, windowHeight);
-  angleMode(RADIANS); // use radians for angle measurements
-  background('#f4f1e3');   // [My change] Set the background to a light beige
-
-
-  // Set center of the screen and circle size
-  let centerX = windowWidth / 2;
-  let centerY = windowHeight / 2;
-  let radius = 200; 
-  let spacing = radius * 1.5; // distance between circle centers
-
-  // Add one circle in the center
-  circles.push(new PatternCircle(centerX, centerY, radius));
-
-  // Add 6 outer circles around the center
-  for (let i = 0; i < 6; i++) {
-    let angle = TWO_PI / 6 * i;
-    let x = centerX + cos(angle) * spacing;
-    let y = centerY + sin(angle) * spacing;
-    circles.push(new PatternCircle(x, y, radius));
-  }
+  angleMode(RADIANS); // [Group Code] Use radians for angle measurements
+  background('#f4f1e3');   // [My Change 2nd Iteration] Set the background to a light beige
 }
 
 function draw() {
-  background('#f4f1e3'); // [My Change] Changed background color to a soft beige tone to reflect traditional Chinese aesthetics
+  background('#f4f1e3'); 
 
-  // [My change] Loop through and render all ripple (ink spread) animations
+  // Loop through and render all ripple (ink spread) animations
   for (let r of rippleCircles) {
     r.update();            // update animations
     r.draw();              // draw each circle
@@ -41,18 +24,18 @@ function draw() {
   }
 }
 
-// [My change] Loop through all umbrella circles
+// [My Change 2nd Iteration] Changed to always create a new umbrella and ripple at the click position.
 function mousePressed() {
-  for (let c of circles) {
-    if (dist(mouseX, mouseY, c.x, c.y) < c.r * 0.5) {
-      // Check if the mouse click is within the central area of a circle
-      rippleCircles.push(new RippleCircle(c.x, c.y));  
-      // If so, create a new ripple effect at that location
-    }
-  }
+  let radius = 200;
+  let x = mouseX;
+  let y = mouseY;
+
+  // [My Change 2nd Iteration] Add a pattern circle and ripple circle at the click position
+  circles.push(new PatternCircle(x, y, radius));
+  rippleCircles.push(new RippleCircle(x, y));
 }
 
-// [My change] This class defines the expanding ripple circle (ink ripple effect)
+// Ripple animation class
 class RippleCircle {
   constructor(x, y) {
   // Set initial position (center of the ripple)
@@ -63,7 +46,7 @@ class RippleCircle {
     this.alpha = 40;       // Transparency of the ripple circle
   }
 
-  //[My change] Gradually increase the radius of the ripple
+  // Gradually increase the radius of the ripple
   update() {
     // If the current radius is less than the maximum allowed, increase the radius to create the expanding effect.
     if (this.radius < this.maxRadius) {
@@ -71,15 +54,15 @@ class RippleCircle {
     }
   }
 
-  // [My change] Display the expanding ripple circle
+  // [My Change 2nd Iteration]] Display the expanding ripple circle
   draw() {
-    fill(30, 30, 30, this.alpha);
+    fill(5, 7, 5, this.alpha); // origanal is fill(30, 30, 30, this.alpha)
     noStroke();
     ellipse(this.x, this.y, this.radius * 2);
   }
 }
 
-// This class creates each circle design
+// [Group code] This class creates each circle design
 class PatternCircle {
   constructor(x, y, r) {
     this.x = x;
@@ -90,7 +73,7 @@ class PatternCircle {
     this.generateColors();           // pick random colors
   }
 
-  // [My Change] Generate random visual styles for this umbrella pattern
+  // [Group Code] Pick random colors for this circle
   generateColors() {
     this.strokeColor = color(random(0, 255), random(0, 100), random(10, 150));
     this.baseCircleColor = color(random(200, 255), random(200, 255), random(200, 255));
@@ -116,7 +99,6 @@ class PatternCircle {
     push();
     translate(this.x, this.y); // move to the circle’s center
 
-    // [My Change] Adjusted size of white background circle
     fill(this.baseCircleColor);
     noStroke();
     circle(0, 0, this.r * 0.5);  // originally r * 1.3
@@ -128,7 +110,6 @@ class PatternCircle {
     this.drawOuterDots(0, 0, this.r);
     pop();
 
-    // [My Change] Adjusted size of inner pink background circle
     fill(this.bgColor);
     stroke(this.strokeColor);
     strokeWeight(5);
@@ -200,9 +181,9 @@ class PatternCircle {
     pop(); // end main drawing
   }
 
-  // Draw red dots in rings around the center
+  // [Group code] Draw red dots in rings around the center
   drawOuterDots(x, y, r) {
-    let maxRadius = r * 0.6;
+    let maxRadius = r * 0.2; // [My Change 2nd Iteration] originally r * 0.23
     let ringIndex = 0;
     for (let i = 10; i < maxRadius; i += 12) {
       let numDots = floor(TWO_PI * i / 10); // how many dots on this ring
@@ -220,8 +201,8 @@ class PatternCircle {
   }
 }
 
-// [My Change] Allow canvas to resize with browser window
+// Allow canvas to resize with browser window
 function windowResized(){
   resizeCanvas(windowWidth, windowHeight);
-  background('#f4f1e3'); // [My change] Reset background after resizing
+  background('#f4f1e3'); // Reset background after resizing
 }
