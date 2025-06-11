@@ -1,4 +1,4 @@
-//  [My Change third iteration] Added a button to generate ink drops
+// [My Change 4th Iteration] Change the ink drop color to a randomly generated Chinese style color
 let circles = [];      // [Group code] an array to store all circle objects
 let rippleCircles = []; // Store ripple effect objects triggered by user clicks
 
@@ -32,8 +32,7 @@ function mousePressed() {
   rippleCircles.push(new RippleCircle(x, y));
 }
 
-// [My Change 3rd Iteration] Trigger ink drops on latest ripple circle
-// Press "1" to add ink drops to the most recent ripple circle
+// Trigger ink drops on latest ripple circle
 function keyPressed() {
   if (key === '1') {
     if (rippleCircles.length > 0) {
@@ -42,7 +41,7 @@ function keyPressed() {
   }
 }
 
-// [My Change 3rd Iteration] Ripple circle class with ink drops
+// [My Change 4th Iteration] Add Chinese style colors
 class RippleCircle {
   constructor(x, y) {
   // Set initial position (center of the ripple)
@@ -51,7 +50,16 @@ class RippleCircle {
     this.radius = 0;       // Initial radius 
     this.maxRadius = 130;  // Maximum radius the ripple can reach
     this.alpha = 40;       // Transparency of the ripple circle
-    this.inkDrops = [];    // [My Change 3rd Iteration] Add ink drop effects
+    this.inkDrops = [];    // Add ink drop effects
+    this.inkColors = [
+      color(36, 39, 30),      // #24271E
+      color(211, 164, 136),   // #D3A488
+      color(59, 78, 61),      // #3B4E3D
+      color(175, 95, 84),     // #AF5F54
+      color(151, 8, 4),       // #970804
+      color(46, 47, 37),      // #2E2F25
+      color(29, 76, 80),      // #1D4C50
+    ];
   }
 
   // Gradually increase the radius of the ripple
@@ -68,9 +76,12 @@ class RippleCircle {
     noStroke();
     ellipse(this.x, this.y, this.radius * 2);
 
-    // [My Change 3rd Iteration] Draw ink drops
     for (let drop of this.inkDrops) {
-      fill(10, 10, 10, drop.alpha);
+      let c = drop.color;
+      c.setAlpha(drop.alpha); 
+      // [My Change 4th Iteration] Use p5.Color.setAlpha() to apply alpha to each ink drop
+      // Source:https://p5js.org/reference/p5.Color/setAlpha/
+      fill(c);                // Added color attribute
       noStroke();
       ellipse(this.x + drop.offsetX, this.y + drop.offsetY, drop.r * 2);
     }
@@ -78,16 +89,17 @@ class RippleCircle {
   
   addInkDrop() {
     for (let i = 0; i < 6; i++) {
+      let c = random(this.inkColors);  // [My Change 4th Iteration] Randomly select a color from the set color array
       this.inkDrops.push({
         // Random horizontal and vertical offset to create scattered ink drop effect
         offsetX: random(-this.radius / 2, this.radius / 2),
         offsetY: random(-this.radius / 2, this.radius / 2),
         r: random(6, 12),  // Random radius to vary the size of each ink drop
-        alpha: 80
+        alpha: 80,
+        color: c
       });
     }
   }
-
 }
 
 // [Group code] This class creates each circle design
